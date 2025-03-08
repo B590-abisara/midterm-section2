@@ -3,6 +3,9 @@ package com.example.midterm_section2
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
@@ -13,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.example.midterm_section2.databinding.FragmentPostsBinding
 import kotlinx.coroutines.launch
+import androidx.appcompat.app.AppCompatActivity
 
 class PostsFragment : Fragment() {
 
@@ -32,6 +36,10 @@ class PostsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Setup Toolbar
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
+        setHasOptionsMenu(true)
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 postViewModel.posts.collect { posts ->
@@ -40,17 +48,28 @@ class PostsFragment : Fragment() {
             }
         }
 
-        // Handle logout button click
-        binding.btnLogout.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
-            findNavController().navigate(R.id.navigateToLogin)
-        }
-
-        // Optional: Add additional functionality (like FloatingActionButton navigation if needed)
+        // Floating Action Button navigation
         binding.fabCreate.setOnClickListener {
             findNavController().navigate(R.id.navigate_to_createFragment)
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.posts_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_logout -> {
+                FirebaseAuth.getInstance().signOut()
+                findNavController().navigate(R.id.navigateToLogin)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
