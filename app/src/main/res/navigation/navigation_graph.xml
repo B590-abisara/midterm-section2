@@ -46,5 +46,13 @@
             app:destination="@id/postsFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.midterm_section2.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
 
+    <action
+        android:id="@+id/navigateToProfile"
+        app:destination="@id/profileFragment" />
 </navigation>

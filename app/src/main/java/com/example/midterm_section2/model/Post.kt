@@ -11,5 +11,7 @@ data class Post(
     @get:PropertyName("creation_time") @set:PropertyName("creation_time")
     var creationTimeMs: Long = 0,
 
-    var user: User? = null
+    var user: User? = null,
+
+    val profileImageUrl: String = ""
 )

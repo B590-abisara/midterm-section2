@@ -19,7 +19,7 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/ivProfileImage"
+                android:id="@+id/ivProfilePicture"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 tools:srcCompat="@tools:sample/avatars" />

@@ -1,5 +1,3 @@
-package com.example.midterm_section2
-
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

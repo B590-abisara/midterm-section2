@@ -15,14 +15,22 @@ import kotlinx.coroutines.withContext
 
 private const val TAG = "PostsAdapter"
 
-class PostHolder(private val binding: PostItemBinding)
-    : RecyclerView.ViewHolder(binding.root) {
+class PostHolder(private val binding: PostItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(post: Post) {
         binding.tvUsername.text = post.user?.username ?: "Unknown"
         binding.tvDescription.text = post.description
         binding.tvRelativeTime.text = DateUtils.getRelativeTimeSpanString(post.creationTimeMs)
 
+        // Load profile picture beside username
+        if (!post.profileImageUrl.isNullOrEmpty()) {
+            binding.ivProfilePicture.load(post.profileImageUrl) {
+                crossfade(true)
+                placeholder(R.drawable.ic_logout)  // Optional placeholder
+            }
+        }
+
+        // Load post image
         if (!post.imageUrl.isNullOrEmpty()) {
             CoroutineScope(Dispatchers.Main).launch {
                 val bitmap = withContext(Dispatchers.IO) {
