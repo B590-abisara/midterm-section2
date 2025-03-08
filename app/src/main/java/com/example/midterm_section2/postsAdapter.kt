@@ -15,7 +15,7 @@ class PostHolder(private val binding: PostItemBinding)
     : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(post: Post) {
-        val username = post.user?.username as String
+        val username = post.user?.username ?: "Unknown User"
         binding.tvUsername.text = username
         binding.tvDescription.text = post.description
         binding.tvRelativeTime.text = DateUtils.getRelativeTimeSpanString(post.creationTimeMs)
