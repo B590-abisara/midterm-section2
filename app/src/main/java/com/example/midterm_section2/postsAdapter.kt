@@ -8,6 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.midterm_section2.databinding.PostItemBinding
 import com.example.midterm_section2.model.Post
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val TAG = "PostsAdapter"
 
@@ -15,17 +19,18 @@ class PostHolder(private val binding: PostItemBinding)
     : RecyclerView.ViewHolder(binding.root) {
 
     fun bind(post: Post) {
-        val username = post.user?.username ?: "Unknown User"
-        binding.tvUsername.text = username
+        binding.tvUsername.text = post.user?.username ?: "Unknown"
         binding.tvDescription.text = post.description
         binding.tvRelativeTime.text = DateUtils.getRelativeTimeSpanString(post.creationTimeMs)
-        if (post.imageUrl != "") {
-            try {
-                binding.ivPost.load(post.imageUrl) {
-                    placeholder(R.drawable.ic_logout)
+
+        if (!post.imageUrl.isNullOrEmpty()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                val bitmap = withContext(Dispatchers.IO) {
+                    PhotoRepository.get().fetchAndDecodeImage(post.imageUrl.substringAfterLast("/"))
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, e.message ?: "")
+                if (bitmap != null) {
+                    binding.ivPost.setImageBitmap(bitmap)
+                }
             }
         }
     }

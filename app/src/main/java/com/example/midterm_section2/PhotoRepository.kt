@@ -1,9 +1,13 @@
 package com.example.midterm_section2
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.util.Log
 import com.example.midterm_section2.network.GitHubApi
 import com.example.midterm_section2.network.GitHubFile
+import com.example.midterm_section2.network.GitHubFileResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -11,8 +15,9 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
+
 private const val TAG = "PhotoRepository"
 
 class PhotoRepository private constructor(
@@ -75,7 +80,6 @@ class PhotoRepository private constructor(
         }
     }
 
-
     private suspend fun uploadImageToGitHub(base64Image: String, filename: String) {
         val path = "$filename"
         val file = GitHubFile(
@@ -86,7 +90,7 @@ class PhotoRepository private constructor(
         try {
             val response = githubApi.uploadFile(token, owner, repo, path, file)
             if (response.isSuccessful) {
-                Log.d(TAG, "File uploaded successfully: ${response.body()?.content?.path}")
+                Log.d(TAG, "File uploaded successfully: ${response.body()?.download_url}")
             } else {
                 Log.e(TAG, "Error: ${response.errorBody()?.string()}")
             }
@@ -95,10 +99,26 @@ class PhotoRepository private constructor(
         }
     }
 
+    suspend fun fetchAndDecodeImage(filename: String): Bitmap? {
+        val path = "$filename"
+        try {
+            val response = githubApi.getFileContent(token, owner, repo, path)
+            if (response.isSuccessful) {
+                val fileResponse = response.body()
+                if (fileResponse != null && fileResponse.encoding == "base64") {
+                    val decodedBytes = Base64.decode(fileResponse.content, Base64.DEFAULT)
+                    return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                }
+            } else {
+                Log.e(TAG, "Error: ${response.errorBody()?.string()}")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
     fun getImageUrl(fileName: String): String {
         return "https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${fileName}"
     }
-
 }
-
-
